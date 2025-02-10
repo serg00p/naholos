@@ -14,14 +14,20 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      padding: 10px;
     }
-    /* Level buttons container and styling */
     #level-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 5px;
+      max-width: 400px;
       margin-bottom: 20px;
     }
     #level-buttons button {
-      margin: 0 5px;
-      padding: 8px 15px;
+      flex: 1 1 calc(33.3% - 10px);
+      min-width: 80px;
+      padding: 10px;
       font-size: 16px;
       border: none;
       border-radius: 5px;
@@ -32,15 +38,13 @@
     #level-buttons button.active {
       background-color: #4CAF50;
     }
-    #level-buttons button:hover {
-      background-color: #1976D2;
-    }
     .container {
       text-align: center;
       background: #fff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      max-width: 300px;
     }
     .word {
       font-size: 24px;
@@ -54,6 +58,7 @@
       border: 2px solid #ccc;
       border-radius: 5px;
       text-align: center;
+      width: 100%;
     }
     button {
       margin-top: 10px;
@@ -64,9 +69,7 @@
       cursor: pointer;
       background-color: #4CAF50;
       color: white;
-    }
-    button:hover {
-      background-color: #45a049;
+      width: 100%;
     }
     .popup {
       display: none;
@@ -79,7 +82,7 @@
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       text-align: center;
-      width: 300px;
+      width: 250px;
     }
     .popup.correct {
       border: 2px solid #4CAF50;
@@ -87,221 +90,87 @@
     .popup.wrong {
       border: 2px solid #ff4d4d;
     }
-    .close-btn {
-      margin-top: 10px;
-      padding: 5px 10px;
-      border: none;
-      background: #007bff;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .close-btn:hover {
-      background: #0056b3;
-    }
   </style>
 </head>
 <body>
-  <!-- Level selection buttons -->
-  <div id="level-buttons">
-    <button onclick="setLevel(0)" id="level-btn-0">Рівень 1</button>
-    <button onclick="setLevel(1)" id="level-btn-1">Рівень 2</button>
-    <button onclick="setLevel(2)" id="level-btn-2">Рівень 3</button>
-    <button onclick="setLevel(3)" id="level-btn-3">Рівень 4</button>
-    <button onclick="setLevel(4)" id="level-btn-4">Рівень 5</button>
-    <button onclick="setLevel(5)" id="level-btn-5">Рівень 6</button>
-    <button onclick="setLevel(6)" id="level-btn-6">Рівень 7</button>
-    <button onclick="setLevel(7)" id="level-btn-7">Рівень 8</button>
-    <button onclick="setLevel(8)" id="level-btn-8">Рівень 9</button>
-    <button onclick="setLevel(9)" id="level-btn-9">Рівень 10</button>
-  </div>
-
+  <div id="level-buttons"></div>
   <div class="container">
     <h1>Тренажер наголосів</h1>
     <div class="word" id="word"></div>
     <input type="text" id="answer" maxlength="20" />
-    <br />
     <button id="nextButton" onclick="checkAndNextWord()">Перевірити і наступне слово</button>
   </div>
   <div id="popup" class="popup">
     <p id="popup-message"></p>
-    <button class="close-btn" onclick="closePopup()">Закрити</button>
+    <button onclick="closePopup()">Закрити</button>
   </div>
-
-  <!-- Audio elements -->
-  <audio id="correctSound1" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
-  <audio id="correctSound2" src="https://www.myinstants.com/media/sounds/na-koleni-na-koleni.mp3"></audio>
-  <audio id="correctSound3" src="https://www.myinstants.com/media/sounds/applepay.mp3"></audio>
-  <audio id="wrongSound1" src="https://www.myinstants.com/media/sounds/wrong.mp3"></audio>
-  <audio id="wrongSound2" src="https://www.myinstants.com/media/sounds/bliaiaiat.mp3"></audio>
-  <audio id="wrongSound3" src="https://www.myinstants.com/media/sounds/movie_1.mp3"></audio>
-
   <script>
-    // Full words list
-    const words = [
-      "агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий",
-      "безпринцИпний", "бЕшкет", "блАговіст", "близькИй", "болотИстий",
-      "борОдавка", "босОніж", "боЯзнь", "бурштинОвий", "бюлетЕнь",
-      "вАги", "вантажІвка", "веснЯнИй", "вИгода", "вигОда",
-      "видАння", "визвОльний", "вимОга", "вИпадок", "вирАзний",
-      "вИсіти", "вИтрата", "вишИваний", "відвезтИ", "відвестИ",
-      "вІдгомін", "віднестИ", "вІдомість", "відОмість", "вІрші",
-      "віршовИй", "вітчИм", "гальмО", "гАльма", "глядАч",
-      "горошИна", "граблІ", "гуртОжиток", "данИна", "дАно",
-      "децимЕтр", "дЕщиця", "де-Юре", "джерелО", "дИвлячись",
-      "дичАвіти", "діалОг", "добовИй", "добУток", "довезтИ",
-      "довестИ", "довІдник", "дОгмат", "донестИ", "дОнька",
-      "дочкА", "дрОва", "експЕрт", "єретИк", "жалюзІ",
-      "завдАння", "завезтИ", "завестИ", "зАвжди", "завчасУ",
-      "зАгадка", "заіржАвілий", "заіржАвіти", "закінчИти", "зАкладка",
-      "зАкрутка", "залишИти", "замІжня", "занестИ", "зАпонка",
-      "заробІток", "зАставка", "зАстібка", "застОпорити", "звИсока",
-      "здАлека", "зібрАння", "зобразИти", "зОзла", "зрАння",
-      "зрУчний", "зубОжіння", "індУстрія", "кАмбала", "каталОг",
-      "квартАл", "кИшка", "кіломЕтр", "кінчИти", "кОлесо",
-      "кОлія", "кОпчений", "копчЕний", "корИсний", "кОсий",
-      "котрИй", "крицЕвий", "крОїти", "кропивА", "кулінАрія",
-      "кУрятина", "лАте", "листопАд", "літОпис", "лЮстро",
-      "мАбУть", "магістЕрський", "мАркетинг", "мерЕжа", "металУргія",
-      "мілімЕтр", "навчАння", "нанестИ", "напІй", "нАскрізний",
-      "нАчинка", "ненАвидіти", "ненАвисний", "ненАвисть", "нестИ",
-      "нІздря", "новИй", "обіцЯнка", "обрАння", "обрУч",
-      "одинАдцять", "одноразОвий", "ознАка", "Олень", "оптОвий",
-      "осетЕр", "отАман", "Оцет", "павИч", "партЕр",
-      "пЕкарський", "перевезтИ", "перевестИ", "перЕкис", "перелЯк",
-      "перенестИ", "перЕпад", "перЕпис",
-      "піалА", "пІдданий", "піддАний", "пІдлітковий", "пізнАння",
-      "пітнИй", "піцЕрія", "пОдруга", "пОзначка", "пОмИлка",
-      "помІщик", "помОвчати", "понЯття", "порядкОвий", "посерЕдині",
-      "привезтИ", "привестИ", "прИморозок", "принестИ", "прИчіп",
-      "прОділ", "промІжок", "псевдонІм", "рАзом", "рЕмінь",
-      "рЕшето", "рИнковий", "рівнИна", "роздрібнИй", "рОзпірка",
-      "рукОпис", "руслО", "сантимЕтр", "свЕрдло", "серЕдина",
-      "сЕча", "симетрІя", "сільськогосподАрський", "сімдесЯт", "слИна",
-      "соломИнка", "стАтуя", "стовідсОтковий", "стрибАти", "текстовИй",
-      "течіЯ", "тИгровий", "тисОвий", "тім’янИй", "травестІя",
-      "тризУб", "тУлуб", "украЇнський", "уподОбання", "урочИстий",
-      "усерЕдині", "фартУх", "фаховИй", "фенОмен", "фОльга",
-      "фОрзац", "хАос", "хаОс", "цАрина", "цемЕнт",
-      "цЕнтнер", "ціннИк", "чарівнИй", "черговИй", "читАння",
-      "чорнОзем", "чорнОслив", "чотирнАдцять", "шляхопровІд", "шовкОвий",
-      "шофЕр", "щЕлепа", "щИпці", "щодобовИй", "ярмаркОвий"
-    ];
-
-    // ----- Split the words into 10 levels -----
+    const words = ["агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий", "безпринцИпний"];
     const levelCount = 10;
     const levels = [];
     let startIndex = 0;
-    // Distribute any "extra" words (if words.length is not exactly divisible by 10)
     for (let i = 0; i < levelCount; i++) {
       let extra = i < (words.length % levelCount) ? 1 : 0;
       let count = Math.floor(words.length / levelCount) + extra;
       levels.push(words.slice(startIndex, startIndex + count));
       startIndex += count;
     }
-    // -----------------------------------------
-
-    const correctMessages = [
-      "Правильно! Молодець!",
-      "Все вірно! Так тримати!",
-      "Чудово!",
-      "Точно!",
-      "Відмінно!"
-    ];
-    const wrongMessages = [
-      "Помилка!",
-      "Спробуй ще раз!",
-      "Невірно!",
-      "Упс, неправильно!",
-      "Ще разок!"
-    ];
-    const correctSounds = ["correctSound1", "correctSound2", "correctSound3"];
-    const wrongSounds = ["wrongSound1", "wrongSound2", "wrongSound3"];
-
     let usedWords = [];
     let currentWord = "";
-    let currentLevelWords = []; // Words for the currently selected level
-
-    // Returns a random word from the current level that hasn’t been used yet
+    let currentLevelWords = [];
+    let currentLevel = -1;
     function getRandomWord() {
       if (usedWords.length === currentLevelWords.length) {
         usedWords = [];
       }
       let word;
       do {
-        word =
-          currentLevelWords[
-            Math.floor(Math.random() * currentLevelWords.length)
-          ];
+        word = currentLevelWords[Math.floor(Math.random() * currentLevelWords.length)];
       } while (usedWords.includes(word));
       usedWords.push(word);
       return word;
     }
-
-    // Display a new word (in lowercase)
     function displayNewWord() {
       currentWord = getRandomWord();
       document.getElementById("word").innerText = currentWord.toLowerCase();
       document.getElementById("answer").value = "";
     }
-
-    // Check the answer and show a popup (with audio feedback)
     function checkAndNextWord() {
       const userInput = document.getElementById("answer").value;
       const popup = document.getElementById("popup");
       const message = document.getElementById("popup-message");
-
       if (userInput === currentWord) {
-        message.innerText =
-          correctMessages[Math.floor(Math.random() * correctMessages.length)];
+        message.innerText = "Правильно!";
         popup.classList.add("correct");
-        document
-          .getElementById(
-            correctSounds[Math.floor(Math.random() * correctSounds.length)]
-          )
-          .play();
         popup.style.display = "block";
-        setTimeout(() => {
-          popup.style.display = "none";
-          popup.classList.remove("correct", "wrong");
-          displayNewWord();
-        }, 2000);
+        setTimeout(() => { popup.style.display = "none"; displayNewWord(); }, 2000);
       } else {
-        message.innerText = `${wrongMessages[Math.floor(
-          Math.random() * wrongMessages.length
-        )]} Правильна відповідь: ${currentWord}`;
+        message.innerText = `Неправильно! Правильна відповідь: ${currentWord}`;
         popup.classList.add("wrong");
-        document
-          .getElementById(
-            wrongSounds[Math.floor(Math.random() * wrongSounds.length)]
-          )
-          .play();
         popup.style.display = "block";
       }
     }
-
     function closePopup() {
       document.getElementById("popup").style.display = "none";
-      document.getElementById("popup").classList.remove("correct", "wrong");
     }
-
-    // Set the selected level and update the UI accordingly
     function setLevel(levelIndex) {
-      // Remove active class from all level buttons
-      for (let i = 0; i < levelCount; i++) {
-        document.getElementById(`level-btn-${i}`).classList.remove("active");
-      }
-      // Mark the selected level button as active
-      document.getElementById(`level-btn-${levelIndex}`).classList.add("active");
-
-      // Set the current level words and reset used words
+      if (levelIndex === currentLevel) return;
+      currentLevel = levelIndex;
+      document.querySelectorAll("#level-buttons button").forEach((btn, i) => {
+        btn.classList.toggle("active", i === levelIndex);
+      });
       currentLevelWords = levels[levelIndex];
       usedWords = [];
       displayNewWord();
     }
-
-    // Set default level on page load (Level 1)
     window.onload = function () {
+      const levelButtonsContainer = document.getElementById("level-buttons");
+      for (let i = 0; i < levelCount; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = `Рівень ${i + 1}`;
+        btn.onclick = () => setLevel(i);
+        levelButtonsContainer.appendChild(btn);
+      }
       setLevel(0);
     };
   </script>
