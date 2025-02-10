@@ -30,8 +30,13 @@
       background-color: #2196F3;
       color: white;
     }
-    #level-buttons button:hover {
-      background-color: #1976D2;
+    /* When a level is completed, mark its button with a green background */
+    #level-buttons button.completed {
+      background-color: #4CAF50 !important;
+    }
+    /* Active level indicator (optional) */
+    #level-buttons button.active {
+      box-shadow: 0 0 10px #666;
     }
     .container {
       text-align: center;
@@ -93,6 +98,10 @@
     .popup.wrong {
       border: 2px solid #ff4d4d;
     }
+    /* Special style for level-complete popup */
+    .popup.completed {
+      border: 2px solid #4CAF50;
+    }
     .close-btn {
       margin-top: 10px;
       padding: 5px 10px;
@@ -125,7 +134,7 @@
   </style>
 </head>
 <body>
-  <!-- Level selection buttons will be generated here -->
+  <!-- Level selection buttons will be generated dynamically -->
   <div id="level-buttons"></div>
 
   <div class="container">
@@ -136,6 +145,7 @@
     <button id="nextButton" onclick="checkAndNextWord()">Перевірити і наступне слово</button>
   </div>
 
+  <!-- Popup used for both answer feedback and level completion -->
   <div id="popup" class="popup">
     <p id="popup-message"></p>
     <button class="close-btn" onclick="closePopup()">Закрити</button>
@@ -149,7 +159,7 @@
   <audio id="wrongSound3" src="https://www.myinstants.com/media/sounds/movie_1.mp3"></audio>
 
   <script>
-    // Full list of words (233 words)
+    // --- Full list of words (233 words) ---
     const allWords = [
       "агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий",
       "безпринцИпний", "бЕшкет", "блАговіст", "близькИй", "болотИстий",
@@ -201,10 +211,10 @@
     ];
 
     // --- Create levels dynamically ---
-    // Define how many words per level (about 20)
+    // Define words per level (≈20 words per level)
     const wordsPerLevel = 20;
     const totalLevels = Math.ceil(allWords.length / wordsPerLevel);
-    // Build an array of levels where each level is an array of words.
+    // Build an array of levels (each level is an array of words)
     const levels = [];
     for (let i = 0; i < totalLevels; i++) {
       levels.push(allWords.slice(i * wordsPerLevel, (i + 1) * wordsPerLevel));
@@ -215,31 +225,46 @@
     for (let i = 0; i < totalLevels; i++) {
       const btn = document.createElement("button");
       btn.textContent = `Рівень ${i + 1}`;
+      // Save the level index on the button for easy access later.
+      btn.dataset.levelIndex = i;
       btn.onclick = function() {
+        // If the same level is already selected, do nothing.
+        if (currentLevel === i) return;
         selectLevel(i);
       };
       levelButtonsContainer.appendChild(btn);
     }
 
     // Global variables for the current level and word management
-    let currentLevel = 0; // index of the level (0-based)
+    let currentLevel = 0; // 0-based index for levels
     let currentLevelWords = levels[currentLevel];
     let usedWords = [];
     let currentWord = "";
 
-    // Called when a level button is clicked.
+    // Called when a level button is clicked (only if a new level is selected)
     function selectLevel(levelIndex) {
       currentLevel = levelIndex;
       currentLevelWords = levels[currentLevel];
       usedWords = [];
+      updateActiveLevelButton();
       displayNewWord();
     }
 
-    // Picks a random word from the current level.
-    function getRandomWord() {
-      if (usedWords.length === currentLevelWords.length) {
-        usedWords = [];
+    // Update the styling of level buttons to show which is active
+    function updateActiveLevelButton() {
+      const buttons = levelButtonsContainer.children;
+      for (let i = 0; i < buttons.length; i++) {
+        if (Number(buttons[i].dataset.levelIndex) === currentLevel) {
+          buttons[i].classList.add("active");
+        } else {
+          buttons[i].classList.remove("active");
+        }
       }
+    }
+
+    // Picks a random word from the current level.
+    // (No auto-reset here—when all words are used, we show the completion screen.)
+    function getRandomWord() {
       let word;
       do {
         word = currentLevelWords[Math.floor(Math.random() * currentLevelWords.length)];
@@ -248,8 +273,13 @@
       return word;
     }
 
-    // Displays a new word.
+    // Displays a new word, or shows the level-complete screen if all words have been passed.
     function displayNewWord() {
+      // If all words in the current level have been used, show level-complete screen.
+      if (usedWords.length >= currentLevelWords.length) {
+        showLevelCompleteScreen();
+        return;
+      }
       currentWord = getRandomWord();
       document.getElementById("word").innerText = currentWord.toLowerCase();
       document.getElementById("answer").value = "";
@@ -260,7 +290,7 @@
     const correctSounds = ["correctSound1", "correctSound2", "correctSound3"];
     const wrongSounds = ["wrongSound1", "wrongSound2", "wrongSound3"];
 
-    // Check user input and display feedback.
+    // Check the user's answer and either show feedback or display the next word.
     function checkAndNextWord() {
       const userInput = document.getElementById("answer").value;
       const popup = document.getElementById("popup");
@@ -268,26 +298,58 @@
 
       if (userInput === currentWord) {
         message.innerText = correctMessages[Math.floor(Math.random() * correctMessages.length)];
+        popup.classList.remove("wrong");
         popup.classList.add("correct");
         document.getElementById(correctSounds[Math.floor(Math.random() * correctSounds.length)]).play();
         popup.style.display = "block";
         setTimeout(() => {
           popup.style.display = "none";
-          popup.classList.remove("correct", "wrong");
+          popup.classList.remove("correct");
           displayNewWord();
         }, 2000);
       } else {
         message.innerText = `${wrongMessages[Math.floor(Math.random() * wrongMessages.length)]} Правильна відповідь: ${currentWord}`;
+        popup.classList.remove("correct");
         popup.classList.add("wrong");
         document.getElementById(wrongSounds[Math.floor(Math.random() * wrongSounds.length)]).play();
         popup.style.display = "block";
       }
     }
 
+    // Close the popup (for normal feedback messages)
     function closePopup() {
       const popup = document.getElementById("popup");
       popup.style.display = "none";
+      popup.classList.remove("correct", "wrong", "completed");
+      // Restore the close button text and onclick behavior (in case it was changed by level-complete)
+      const closeBtn = document.querySelector(".close-btn");
+      closeBtn.innerText = "Закрити";
+      closeBtn.onclick = closePopup;
+    }
+
+    // Show the level completion screen. This uses the popup element to display a message and a "Restart Level" button.
+    function showLevelCompleteScreen() {
+      const popup = document.getElementById("popup");
+      const message = document.getElementById("popup-message");
+      message.innerText = `Ви завершили рівень ${currentLevel + 1}!`;
       popup.classList.remove("correct", "wrong");
+      popup.classList.add("completed");
+      // Change the close button into a "Restart Level" button
+      const closeBtn = document.querySelector(".close-btn");
+      closeBtn.innerText = "Перезапустити рівень";
+      closeBtn.onclick = function() {
+        popup.style.display = "none";
+        // Restart this level by resetting the used words (the level button remains marked as completed)
+        usedWords = [];
+        displayNewWord();
+      };
+      popup.style.display = "block";
+
+      // Mark the level button as completed (change its color)
+      const levelButtons = levelButtonsContainer.children;
+      if (levelButtons[currentLevel]) {
+        levelButtons[currentLevel].classList.add("completed");
+      }
     }
 
     // Set the default level when the page loads.
