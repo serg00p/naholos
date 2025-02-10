@@ -34,7 +34,7 @@
     #level-buttons button.completed {
       background-color: #4CAF50 !important;
     }
-    /* Active level indicator (optional) */
+    /* Active level indicator */
     #level-buttons button.active {
       box-shadow: 0 0 10px #666;
     }
@@ -95,12 +95,6 @@
     button:hover {
       background-color: #45a049;
     }
-    /* Statistics styling */
-    #statistics {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #555;
-    }
     .popup {
       display: none;
       position: fixed;
@@ -121,7 +115,6 @@
     .popup.wrong {
       border: 2px solid #ff4d4d;
     }
-    /* Special style for level-complete popup */
     .popup.completed {
       border: 2px solid #4CAF50;
     }
@@ -170,8 +163,6 @@
     <input type="text" id="answer" maxlength="20">
     <br>
     <button id="nextButton" onclick="checkAndNextWord()">Перевірити і наступне слово</button>
-    <!-- Statistics for wrong words -->
-    <div id="statistics"></div>
   </div>
 
   <!-- Popup used for both answer feedback and level completion -->
@@ -254,7 +245,6 @@
     for (let i = 0; i < totalLevels; i++) {
       const btn = document.createElement("button");
       btn.textContent = `Рівень ${i + 1}`;
-      // Save the level index on the button for easy access later.
       btn.dataset.levelIndex = i;
       btn.onclick = function() {
         // If the same level is already selected, do nothing.
@@ -277,9 +267,9 @@
       currentLevelWords = levels[currentLevel];
       usedWords = [];
       wrongWords = [];
-      updateStatistics();
       updateProgressBar();
       updateActiveLevelButton();
+      document.getElementById("popup").style.display = "none";
       displayNewWord();
     }
 
@@ -302,16 +292,6 @@
       progressBar.style.width = progress + "%";
     }
 
-    // Update the statistics display for wrong words
-    function updateStatistics() {
-      const statsDiv = document.getElementById("statistics");
-      if (wrongWords.length === 0) {
-        statsDiv.innerText = "";
-      } else {
-        statsDiv.innerText = "Неправильні слова: " + wrongWords.join(', ');
-      }
-    }
-
     // Picks a random word from the current level.
     // (No auto-reset here—when all words are used, we show the completion screen.)
     function getRandomWord() {
@@ -325,9 +305,7 @@
 
     // Displays a new word, or shows the level-complete screen if all words have been passed.
     function displayNewWord() {
-      // Update progress bar each time
       updateProgressBar();
-      // If all words in the current level have been used, show level-complete screen.
       if (usedWords.length >= currentLevelWords.length) {
         showLevelCompleteScreen();
         return;
@@ -365,10 +343,9 @@
         popup.classList.add("wrong");
         document.getElementById(wrongSounds[Math.floor(Math.random() * wrongSounds.length)]).play();
         popup.style.display = "block";
-        // Record the wrong word if not already recorded
+        // Record the wrong word if not already recorded (but do not display statistics yet)
         if (!wrongWords.includes(currentWord)) {
           wrongWords.push(currentWord);
-          updateStatistics();
         }
       }
     }
@@ -378,20 +355,31 @@
       const popup = document.getElementById("popup");
       popup.style.display = "none";
       popup.classList.remove("correct", "wrong", "completed");
-      // Restore the close button text and onclick behavior (in case it was changed by level-complete)
       const closeBtn = document.querySelector(".close-btn");
       closeBtn.innerText = "Закрити";
       closeBtn.onclick = closePopup;
     }
 
-    // Show the level completion screen. This uses the popup element to display a message and a "Next Level" button.
+    // Show the level completion screen.
+    // The popup displays the level complete message along with statistics of wrong words.
     function showLevelCompleteScreen() {
       const popup = document.getElementById("popup");
       const message = document.getElementById("popup-message");
-      message.innerText = `Ви завершили рівень ${currentLevel + 1}!`;
+      
+      // Build the statistics message
+      let statsMessage = "";
+      if (wrongWords.length === 0) {
+        statsMessage = "Ви відповіли правильно на всі слова!";
+      } else {
+        statsMessage = "Невірні слова: " + wrongWords.join(', ');
+      }
+      
+      message.innerText = `Ви завершили рівень ${currentLevel + 1}!\n${statsMessage}`;
+      
       popup.classList.remove("correct", "wrong");
       popup.classList.add("completed");
-      // Change the close button into a "Next Level" button
+      
+      // Change the close button into a "Next Level" button.
       const closeBtn = document.querySelector(".close-btn");
       closeBtn.innerText = "Наступний рівень";
       closeBtn.onclick = function() {
@@ -404,8 +392,8 @@
         }
       };
       popup.style.display = "block";
-
-      // Mark the level button as completed (change its color)
+      
+      // Mark the level button as completed.
       const levelButtons = levelButtonsContainer.children;
       if (levelButtons[currentLevel]) {
         levelButtons[currentLevel].classList.add("completed");
