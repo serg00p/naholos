@@ -104,21 +104,26 @@
     <p id="popup-message"></p>
     <button onclick="closePopup()">Закрити</button>
   </div>
+
   <script>
-    const words = ["агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий", "безпринцИпний"];
-    const levelCount = 10;
-    const levels = [];
-    let startIndex = 0;
-    for (let i = 0; i < levelCount; i++) {
-      let extra = i < (words.length % levelCount) ? 1 : 0;
-      let count = Math.floor(words.length / levelCount) + extra;
-      levels.push(words.slice(startIndex, startIndex + count));
-      startIndex += count;
-    }
+    const levels = {
+      1: ["агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий", "безпринцИпний", "бЕшкет", "блАговіст", "близькИй", "болотИстий"],
+      2: ["борОдавка", "босОніж", "боЯзнь", "бурштинОвий", "бюлетЕнь", "вАги", "вантажІвка", "веснЯнИй", "вИгода (користь)", "вигОда (зручність)"],
+      3: ["видАння", "визвОльний", "вимОга", "вИпадок", "вирАзний", "вИсіти", "вИтрата", "вишИваний", "відвезтИ", "відвестИ"],
+      4: ["вІдгомін", "віднестИ", "вІдомість", "відОмість", "вІрші", "віршовИй", "вітчИм", "гальмО", "гАльма", "глядАч"],
+      5: ["горошИна", "граблІ", "гуртОжиток", "данИна", "дАно", "децимЕтр", "дЕщиця", "де-Юре", "джерелО", "дИвлячись"],
+      6: ["дичАвіти", "діалОг", "добовИй", "добУток", "довезтИ", "довестИ", "довІдник", "дОгмат", "донестИ", "дОнька"],
+      7: ["дочкА", "дрОва", "експЕрт", "єретИк", "жалюзІ", "завдАння", "завезтИ", "завестИ", "зАвжди", "завчасУ"],
+      8: ["зАгадка", "заіржАвілий", "заіржАвіти", "закінчИти", "зАкладка", "зАкрутка", "залишИти", "замІжня", "занестИ", "зАпонка"],
+      9: ["заробІток", "зАставка", "зАстібка", "застОпорити", "звИсока", "здАлека", "зібрАння", "зобразИти", "зОзла", "зрАння"],
+      10: ["зрУчний", "зубОжіння", "індУстрія", "кАмбала", "каталОг", "квартАл", "кИшка", "кіломЕтр", "кінчИти", "кОлесо"]
+    };
+
+    let currentLevel = 1;
+    let currentLevelWords = levels[currentLevel];
     let usedWords = [];
     let currentWord = "";
-    let currentLevelWords = [];
-    let currentLevel = -1;
+
     function getRandomWord() {
       if (usedWords.length === currentLevelWords.length) {
         usedWords = [];
@@ -130,11 +135,13 @@
       usedWords.push(word);
       return word;
     }
+
     function displayNewWord() {
       currentWord = getRandomWord();
       document.getElementById("word").innerText = currentWord.toLowerCase();
       document.getElementById("answer").value = "";
     }
+
     function checkAndNextWord() {
       const userInput = document.getElementById("answer").value;
       const popup = document.getElementById("popup");
@@ -150,9 +157,11 @@
         popup.style.display = "block";
       }
     }
+
     function closePopup() {
       document.getElementById("popup").style.display = "none";
     }
+
     function setLevel(levelIndex) {
       if (levelIndex === currentLevel) return;
       currentLevel = levelIndex;
@@ -163,15 +172,16 @@
       usedWords = [];
       displayNewWord();
     }
+
     window.onload = function () {
       const levelButtonsContainer = document.getElementById("level-buttons");
-      for (let i = 0; i < levelCount; i++) {
+      for (let i = 1; i <= Object.keys(levels).length; i++) {
         const btn = document.createElement("button");
-        btn.innerText = `Рівень ${i + 1}`;
+        btn.innerText = `Рівень ${i}`;
         btn.onclick = () => setLevel(i);
         levelButtonsContainer.appendChild(btn);
       }
-      setLevel(0);
+      setLevel(currentLevel);
     };
   </script>
 </body>
