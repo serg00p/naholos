@@ -230,21 +230,45 @@
       "шофЕр", "щЕлепа", "щИпці", "щодобовИй", "ярмаркОвий"
     ];
 
-    // --- Create levels dynamically ---
-    // Define words per level (≈20 words per level)
+    // --- Words with variable stress ---
+    const variableStressWords = ["вИгода", "вигОда", "вІдомість", "відОмість", 
+    "кОпчений", "копчЕний", "пІдданий", "піддАний", "хАос", "хаОс"];
+
+    const variableStressHints = {
+        "вИгода": "користь",
+        "вигОда": "зручність",
+        "вІдомість": "список",
+        "відОмість": "повідомлення, дані, популярність",
+        "кОпчений": "дієприкметник",
+        "копчЕний": "прикметник",
+        "пІдданий": "дієприкметник",
+        "піддАний": "іменник, істота",
+        "хАос": "у міфології: стихія",
+        "хаОс": "безлад"
+    };
+
+    // --- Create levels ---
     const wordsPerLevel = 20;
-    const totalLevels = Math.ceil(allWords.length / wordsPerLevel);
-    // Build an array of levels (each level is an array of words)
+    const initialLevels = Math.ceil(allWords.length / wordsPerLevel);
     const levels = [];
-    for (let i = 0; i < totalLevels; i++) {
-      levels.push(allWords.slice(i * wordsPerLevel, (i + 1) * wordsPerLevel));
+    
+    // Regular levels
+    for(let i=0; i<initialLevels; i++) {
+        levels.push(allWords.slice(i*wordsPerLevel, (i+1)*wordsPerLevel));
     }
+// Special level for variable stress
+    levels.push(variableStressWords);
+    const variableStressLevelIndex = levels.length - 1;
+
+
 
     // Generate level selection buttons dynamically
     const levelButtonsContainer = document.getElementById("level-buttons");
-    for (let i = 0; i < totalLevels; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = `Рівень ${i + 1}`;
+    for(let i=0; i<levels.length; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i === variableStressLevelIndex 
+            ? "Змінний наголос" 
+            : Рівень ${i+1};
       btn.dataset.levelIndex = i;
       btn.onclick = function() {
         // If the same level is already selected, do nothing.
@@ -304,15 +328,23 @@
     }
 
     // Displays a new word, or shows the level-complete screen if all words have been passed.
-    function displayNewWord() {
-      updateProgressBar();
-      if (usedWords.length >= currentLevelWords.length) {
-        showLevelCompleteScreen();
-        return;
-      }
-      currentWord = getRandomWord();
-      document.getElementById("word").innerText = currentWord.toLowerCase();
-      document.getElementById("answer").value = "";
+     function displayNewWord() {
+        updateProgressBar();
+        if(usedWords.length >= currentLevelWords.length) {
+            showLevelCompleteScreen();
+            return;
+        }
+        
+        currentWord = getRandomWord();
+        let displayText = currentWord.toLowerCase();
+        
+        // Add hint for variable stress level
+        if(currentLevel === variableStressLevelIndex) {
+            displayText += ` (${variableStressHints[currentWord]})`;
+        }
+        
+        document.getElementById("word").innerText = displayText;
+        document.getElementById("answer").value = "";
     }
 
     const correctMessages = ["Правильно! Молодець!", "Все вірно! Так тримати!", "Чудово!", "Точно!", "Відмінно!"];
