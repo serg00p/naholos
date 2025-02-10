@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f6f7fb;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,10 +16,36 @@
         }
         .container {
             text-align: center;
-            background: white;
+            background: #fff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .word {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        input {
+            font-size: 18px;
+            padding: 5px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background-color: #45a049;
         }
         .popup {
             display: none;
@@ -30,8 +56,15 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
+            width: 300px;
+        }
+        .popup.correct {
+            border: 2px solid #4CAF50;
+        }
+        .popup.wrong {
+            border: 2px solid #ff4d4d;
         }
         .close-btn {
             margin-top: 10px;
@@ -41,6 +74,9 @@
             color: white;
             border-radius: 5px;
             cursor: pointer;
+        }
+        .close-btn:hover {
+            background: #0056b3;
         }
     </style>
 </head>
@@ -85,22 +121,30 @@
 
         function checkAndNextWord() {
             const userInput = document.getElementById("answer").value;
+            const popup = document.getElementById("popup");
+            const message = document.getElementById("popup-message");
+            
             if (userInput === currentWord) {
-                document.getElementById("popup-message").innerText = "Все правильно!";
+                message.innerText = "Все правильно!";
+                popup.classList.add("correct");
                 document.getElementById("correctSound").play();
+                popup.style.display = "block";
                 setTimeout(() => {
-                    document.getElementById("popup").style.display = "none";
+                    popup.style.display = "none";
+                    popup.classList.remove("correct", "wrong");
                     displayNewWord();
-                }, 1000);
+                }, 1500);
             } else {
-                document.getElementById("popup-message").innerText = `Неправильно! Правильна відповідь: ${currentWord}`;
+                message.innerText = `Неправильно! Правильна відповідь: ${currentWord}`;
+                popup.classList.add("wrong");
                 document.getElementById("wrongSound").play();
+                popup.style.display = "block";
             }
-            document.getElementById("popup").style.display = "block";
         }
 
         function closePopup() {
             document.getElementById("popup").style.display = "none";
+            document.getElementById("popup").classList.remove("correct", "wrong");
         }
 
         window.onload = displayNewWord;
