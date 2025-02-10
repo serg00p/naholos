@@ -1,188 +1,206 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Тренажер наголосів</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f2f5;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 10px;
-    }
-    #level-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 5px;
-      max-width: 400px;
-      margin-bottom: 20px;
-    }
-    #level-buttons button {
-      flex: 1 1 calc(33.3% - 10px);
-      min-width: 80px;
-      padding: 10px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: #2196F3;
-      color: #fff;
-      cursor: pointer;
-    }
-    #level-buttons button.active {
-      background-color: #4CAF50;
-    }
-    .container {
-      text-align: center;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      max-width: 300px;
-    }
-    .word {
-      font-size: 24px;
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 10px;
-    }
-    input {
-      font-size: 18px;
-      padding: 5px;
-      border: 2px solid #ccc;
-      border-radius: 5px;
-      text-align: center;
-      width: 100%;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      background-color: #4CAF50;
-      color: white;
-      width: 100%;
-    }
-    .popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      width: 250px;
-    }
-    .popup.correct {
-      border: 2px solid #4CAF50;
-    }
-    .popup.wrong {
-      border: 2px solid #ff4d4d;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер наголосів</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .word {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        input {
+            font-size: 18px;
+            padding: 5px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 300px;
+        }
+        .popup.correct {
+            border: 2px solid #4CAF50;
+        }
+        .popup.wrong {
+            border: 2px solid #ff4d4d;
+        }
+        .close-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <div id="level-buttons"></div>
-  <div class="container">
-    <h1>Тренажер наголосів</h1>
-    <div class="word" id="word"></div>
-    <input type="text" id="answer" maxlength="20" />
-    <button id="nextButton" onclick="checkAndNextWord()">Перевірити і наступне слово</button>
-  </div>
-  <div id="popup" class="popup">
-    <p id="popup-message"></p>
-    <button onclick="closePopup()">Закрити</button>
-  </div>
+    <div class="container">
+        <h1>Тренажер наголосів</h1>
+        <div class="word" id="word"></div>
+        <input type="text" id="answer" maxlength="20">
+        <br>
+        <button id="nextButton" onclick="checkAndNextWord()">Перевірити і наступне слово</button>
+    </div>
+    <div id="popup" class="popup">
+        <p id="popup-message"></p>
+        <button class="close-btn" onclick="closePopup()">Закрити</button>
+    </div>
+    <audio id="correctSound1" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
+    <audio id="correctSound2" src="https://www.myinstants.com/media/sounds/na-koleni-na-koleni.mp3"></audio>
+    <audio id="correctSound3" src="https://www.myinstants.com/media/sounds/applepay.mp3"></audio>
+    <audio id="wrongSound1" src="https://www.myinstants.com/media/sounds/wrong.mp3"></audio>
+    <audio id="wrongSound2" src="https://www.myinstants.com/media/sounds/bliaiaiat.mp3"></audio>
+    <audio id="wrongSound3" src="https://www.myinstants.com/media/sounds/movie_1.mp3"></audio>
+    <script>
+        const words = [
+        "агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий",
+        "безпринцИпний", "бЕшкет", "блАговіст", "близькИй", "болотИстий",
+        "борОдавка", "босОніж", "боЯзнь", "бурштинОвий", "бюлетЕнь",
+        "вАги", "вантажІвка", "веснЯнИй", "вИгода", "вигОда",
+        "видАння", "визвОльний", "вимОга", "вИпадок", "вирАзний",
+        "вИсіти", "вИтрата", "вишИваний", "відвезтИ", "відвестИ",
+        "вІдгомін", "віднестИ", "вІдомість", "відОмість", "вІрші",
+        "віршовИй", "вітчИм", "гальмО", "гАльма", "глядАч",
+        "горошИна", "граблІ", "гуртОжиток", "данИна", "дАно",
+        "децимЕтр", "дЕщиця", "де-Юре", "джерелО", "дИвлячись",
+        "дичАвіти", "діалОг", "добовИй", "добУток", "довезтИ",
+        "довестИ", "довІдник", "дОгмат", "донестИ", "дОнька",
+        "дочкА", "дрОва", "експЕрт", "єретИк", "жалюзІ",
+        "завдАння", "завезтИ", "завестИ", "зАвжди", "завчасУ",
+        "зАгадка", "заіржАвілий", "заіржАвіти", "закінчИти", "зАкладка",
+        "зАкрутка", "залишИти", "замІжня", "занестИ", "зАпонка",
+        "заробІток", "зАставка", "зАстібка", "застОпорити", "звИсока",
+        "здАлека", "зібрАння", "зобразИти", "зОзла", "зрАння",
+        "зрУчний", "зубОжіння", "індУстрія", "кАмбала", "каталОг",
+        "квартАл", "кИшка", "кіломЕтр", "кінчИти", "кОлесо",
+        "кОлія", "кОпчений", "копчЕний", "корИсний", "кОсий",
+        "котрИй", "крицЕвий", "крОїти", "кропивА", "кулінАрія",
+        "кУрятина", "лАте", "листопАд", "літОпис", "лЮстро",
+        "мАбУть", "магістЕрський", "мАркетинг", "мерЕжа", "металУргія",
+        "мілімЕтр", "навчАння", "нанестИ", "напІй", "нАскрізний",
+        "нАчинка", "ненАвидіти", "ненАвисний", "ненАвисть", "нестИ",
+        "нІздря", "новИй", "обіцЯнка", "обрАння", "обрУч",
+        "одинАдцять", "одноразОвий", "ознАка", "Олень", "оптОвий",
+        "осетЕр", "отАман", "Оцет", "павИч", "партЕр",
+        "пЕкарський", "перевезтИ", "перевестИ", "перЕкис", 
+        "перелЯк", "перенестИ", "перЕпад", "перЕпис",
+        "піалА", "пІдданий", "піддАний", "пІдлітковий", "пізнАння",
+        "пітнИй", "піцЕрія", "пОдруга", "пОзначка", "пОмИлка",
+        "помІщик", "помОвчати", "понЯття", "порядкОвий", "посерЕдині",
+        "привезтИ", "привестИ", "прИморозок", "принестИ", "прИчіп",
+        "прОділ", "промІжок", "псевдонІм", "рАзом", "рЕмінь",
+        "рЕшето", "рИнковий", "рівнИна", "роздрібнИй", "рОзпірка",
+        "рукОпис", "руслО", "сантимЕтр", "свЕрдло", "серЕдина",
+        "сЕча", "симетрІя", "сільськогосподАрський", "сімдесЯт", "слИна",
+        "соломИнка", "стАтуя", "стовідсОтковий", "стрибАти", "текстовИй",
+        "течіЯ", "тИгровий", "тисОвий", "тім’янИй", "травестІя",
+        "тризУб", "тУлуб", "украЇнський", "уподОбання", "урочИстий",
+        "усерЕдині", "фартУх", "фаховИй", "фенОмен", "фОльга",
+        "фОрзац", "хАос", "хаОс", "цАрина", "цемЕнт",
+        "цЕнтнер", "ціннИк", "чарівнИй", "черговИй", "читАння",
+        "чорнОзем", "чорнОслив", "чотирнАдцять", "шляхопровІд", "шовкОвий",
+        "шофЕр", "щЕлепа", "щИпці", "щодобовИй", "ярмаркОвий"
+        ];
+        
+        const correctMessages = ["Правильно! Молодець!", "Все вірно! Так тримати!", "Чудово!", "Точно!", "Відмінно!"];
+        const wrongMessages = ["Помилка!", "Спробуй ще раз!", "Невірно!", "Упс, неправильно!", "Ще разок!"];
+        const correctSounds = ["correctSound1", "correctSound2", "correctSound3"];
+        const wrongSounds = ["wrongSound1", "wrongSound2", "wrongSound3"];
+        let usedWords = [];
+        let currentWord = "";
 
-  <script>
-    const levels = {
-      1: ["агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий", "безпринцИпний", "бЕшкет", "блАговіст", "близькИй", "болотИстий"],
-      2: ["борОдавка", "босОніж", "боЯзнь", "бурштинОвий", "бюлетЕнь", "вАги", "вантажІвка", "веснЯнИй", "вИгода (користь)", "вигОда (зручність)"],
-      3: ["видАння", "визвОльний", "вимОга", "вИпадок", "вирАзний", "вИсіти", "вИтрата", "вишИваний", "відвезтИ", "відвестИ"],
-      4: ["вІдгомін", "віднестИ", "вІдомість", "відОмість", "вІрші", "віршовИй", "вітчИм", "гальмО", "гАльма", "глядАч"],
-      5: ["горошИна", "граблІ", "гуртОжиток", "данИна", "дАно", "децимЕтр", "дЕщиця", "де-Юре", "джерелО", "дИвлячись"],
-      6: ["дичАвіти", "діалОг", "добовИй", "добУток", "довезтИ", "довестИ", "довІдник", "дОгмат", "донестИ", "дОнька"],
-      7: ["дочкА", "дрОва", "експЕрт", "єретИк", "жалюзІ", "завдАння", "завезтИ", "завестИ", "зАвжди", "завчасУ"],
-      8: ["зАгадка", "заіржАвілий", "заіржАвіти", "закінчИти", "зАкладка", "зАкрутка", "залишИти", "замІжня", "занестИ", "зАпонка"],
-      9: ["заробІток", "зАставка", "зАстібка", "застОпорити", "звИсока", "здАлека", "зібрАння", "зобразИти", "зОзла", "зрАння"],
-      10: ["зрУчний", "зубОжіння", "індУстрія", "кАмбала", "каталОг", "квартАл", "кИшка", "кіломЕтр", "кінчИти", "кОлесо"]
-    };
+        function getRandomWord() {
+            if (usedWords.length === words.length) usedWords = [];
+            let word;
+            do {
+                word = words[Math.floor(Math.random() * words.length)];
+            } while (usedWords.includes(word));
+            usedWords.push(word);
+            return word;
+        }
 
-    let currentLevel = 1;
-    let currentLevelWords = levels[currentLevel];
-    let usedWords = [];
-    let currentWord = "";
+        function displayNewWord() {
+            currentWord = getRandomWord();
+            document.getElementById("word").innerText = currentWord.toLowerCase();
+            document.getElementById("answer").value = "";
+        }
 
-    function getRandomWord() {
-      if (usedWords.length === currentLevelWords.length) {
-        usedWords = [];
-      }
-      let word;
-      do {
-        word = currentLevelWords[Math.floor(Math.random() * currentLevelWords.length)];
-      } while (usedWords.includes(word));
-      usedWords.push(word);
-      return word;
-    }
+        function checkAndNextWord() {
+            const userInput = document.getElementById("answer").value;
+            const popup = document.getElementById("popup");
+            const message = document.getElementById("popup-message");
+            
+            if (userInput === currentWord) {
+                message.innerText = correctMessages[Math.floor(Math.random() * correctMessages.length)];
+                popup.classList.add("correct");
+                document.getElementById(correctSounds[Math.floor(Math.random() * correctSounds.length)]).play();
+                popup.style.display = "block";
+                setTimeout(() => {
+                    popup.style.display = "none";
+                    popup.classList.remove("correct", "wrong");
+                    displayNewWord();
+                }, 2000);
+            } else {
+                message.innerText = `${wrongMessages[Math.floor(Math.random() * wrongMessages.length)]} Правильна відповідь: ${currentWord}`;
+                popup.classList.add("wrong");
+                document.getElementById(wrongSounds[Math.floor(Math.random() * wrongSounds.length)]).play();
+                popup.style.display = "block";
+            }
+        }
 
-    function displayNewWord() {
-      currentWord = getRandomWord();
-      document.getElementById("word").innerText = currentWord.toLowerCase();
-      document.getElementById("answer").value = "";
-    }
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+            document.getElementById("popup").classList.remove("correct", "wrong");
+        }
 
-    function checkAndNextWord() {
-      const userInput = document.getElementById("answer").value;
-      const popup = document.getElementById("popup");
-      const message = document.getElementById("popup-message");
-      if (userInput === currentWord) {
-        message.innerText = "Правильно!";
-        popup.classList.add("correct");
-        popup.style.display = "block";
-        setTimeout(() => { popup.style.display = "none"; displayNewWord(); }, 2000);
-      } else {
-        message.innerText = `Неправильно! Правильна відповідь: ${currentWord}`;
-        popup.classList.add("wrong");
-        popup.style.display = "block";
-      }
-    }
-
-    function closePopup() {
-      document.getElementById("popup").style.display = "none";
-    }
-
-    function setLevel(levelIndex) {
-      if (levelIndex === currentLevel) return;
-      currentLevel = levelIndex;
-      document.querySelectorAll("#level-buttons button").forEach((btn, i) => {
-        btn.classList.toggle("active", i === levelIndex);
-      });
-      currentLevelWords = levels[levelIndex];
-      usedWords = [];
-      displayNewWord();
-    }
-
-    window.onload = function () {
-      const levelButtonsContainer = document.getElementById("level-buttons");
-      for (let i = 1; i <= Object.keys(levels).length; i++) {
-        const btn = document.createElement("button");
-        btn.innerText = `Рівень ${i}`;
-        btn.onclick = () => setLevel(i);
-        levelButtonsContainer.appendChild(btn);
-      }
-      setLevel(currentLevel);
-    };
-  </script>
+        window.onload = displayNewWord;
+    </script>
 </body>
 </html>
