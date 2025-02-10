@@ -92,8 +92,12 @@
         <p id="popup-message"></p>
         <button class="close-btn" onclick="closePopup()">Закрити</button>
     </div>
-    <audio id="correctSound" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
-    <audio id="wrongSound" src="https://www.myinstants.com/media/sounds/wrong.mp3"></audio>
+    <audio id="correctSound1" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
+    <audio id="correctSound2" src="https://www.myinstants.com/media/sounds/na-koleni-na-koleni.mp3"></audio>
+    <audio id="correctSound3" src="https://www.myinstants.com/media/sounds/applepay.mp3"></audio>
+    <audio id="wrongSound1" src="https://www.myinstants.com/media/sounds/wrong.mp3"></audio>
+    <audio id="wrongSound2" src="https://www.myinstants.com/media/sounds/bliaiaiat.mp3"></audio>
+    <audio id="wrongSound3" src="https://www.myinstants.com/media/sounds/movie_1.mp3"></audio>
     <script>
         const words = [
             "агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий",
@@ -102,6 +106,8 @@
         ];
         const correctMessages = ["Правильно! Молодець!", "Все вірно! Так тримати!", "Чудово!", "Точно!", "Відмінно!"];
         const wrongMessages = ["Помилка!", "Спробуй ще раз!", "Невірно!", "Упс, неправильно!", "Ще разок!"];
+        const correctSounds = ["correctSound1", "correctSound2", "correctSound3"];
+        const wrongSounds = ["wrongSound1", "wrongSound2", "wrongSound3"];
         let usedWords = [];
         let currentWord = "";
 
@@ -129,7 +135,7 @@
             if (userInput === currentWord) {
                 message.innerText = correctMessages[Math.floor(Math.random() * correctMessages.length)];
                 popup.classList.add("correct");
-                document.getElementById("correctSound").play();
+                document.getElementById(correctSounds[Math.floor(Math.random() * correctSounds.length)]).play();
                 popup.style.display = "block";
                 setTimeout(() => {
                     popup.style.display = "none";
@@ -139,7 +145,7 @@
             } else {
                 message.innerText = `${wrongMessages[Math.floor(Math.random() * wrongMessages.length)]} Правильна відповідь: ${currentWord}`;
                 popup.classList.add("wrong");
-                document.getElementById("wrongSound").play();
+                document.getElementById(wrongSounds[Math.floor(Math.random() * wrongSounds.length)]).play();
                 popup.style.display = "block";
             }
         }
@@ -153,3 +159,4 @@
     </script>
 </body>
 </html>
+
