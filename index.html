@@ -12,13 +12,13 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
     }
-    /* Level buttons container */
+    /* Container for level selection buttons */
     #level-buttons {
       text-align: center;
-      margin-bottom: 20px;
+      margin: 20px 0;
     }
     #level-buttons button {
       margin: 5px;
@@ -58,6 +58,7 @@
       /* Disable auto-correct and auto-capitalize for iPhone */
       autocorrect: off;
       autocapitalize: none;
+      spellcheck: false;
     }
     button {
       margin-top: 10px;
@@ -124,17 +125,13 @@
   </style>
 </head>
 <body>
-  <!-- Level selection buttons -->
-  <div id="level-buttons">
-    <button onclick="selectLevel(1)">Рівень 1</button>
-    <button onclick="selectLevel(2)">Рівень 2</button>
-    <button onclick="selectLevel(3)">Рівень 3</button>
-  </div>
+  <!-- Level selection buttons will be generated here -->
+  <div id="level-buttons"></div>
 
   <div class="container">
     <h1>Тренажер наголосів</h1>
     <div class="word" id="word"></div>
-    <input type="text" id="answer" maxlength="20" autocorrect="off" autocapitalize="none" spellcheck="false">
+    <input type="text" id="answer" maxlength="20">
     <br>
     <button id="nextButton" onclick="checkAndNextWord()">Перевірити і наступне слово</button>
   </div>
@@ -152,7 +149,7 @@
   <audio id="wrongSound3" src="https://www.myinstants.com/media/sounds/movie_1.mp3"></audio>
 
   <script>
-    // Full list of words
+    // Full list of words (233 words)
     const allWords = [
       "агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий",
       "безпринцИпний", "бЕшкет", "блАговіст", "близькИй", "болотИстий",
@@ -176,7 +173,7 @@
       "квартАл", "кИшка", "кіломЕтр", "кінчИти", "кОлесо",
       "кОлія", "кОпчений", "копчЕний", "корИсний", "кОсий",
       "котрИй", "крицЕвий", "крОїти", "кропивА", "кулінАрія",
-      "кУрятина", "лAте", "листопАд", "літОпис", "лЮстро",
+      "кУрятина", "лАте", "листопАд", "літОпис", "лЮстро",
       "мАбУть", "магістЕрський", "мАркетинг", "мерЕжа", "металУргія",
       "мілімЕтр", "навчАння", "нанестИ", "напІй", "нАскрізний",
       "нАчинка", "ненАвидіти", "ненАвисний", "ненАвисть", "нестИ",
@@ -203,23 +200,36 @@
       "шофЕр", "щЕлепа", "щИпці", "щодобовИй", "ярмаркОвий"
     ];
 
-    // Split the full list into three levels.
-    // Level 1: first 78 words, Level 2: next 78 words, Level 3: remaining 77 words.
-    const levels = {
-      level1: allWords.slice(0, 78),
-      level2: allWords.slice(78, 156),
-      level3: allWords.slice(156)
-    };
+    // --- Create levels dynamically ---
+    // Define how many words per level (about 20)
+    const wordsPerLevel = 20;
+    const totalLevels = Math.ceil(allWords.length / wordsPerLevel);
+    // Build an array of levels where each level is an array of words.
+    const levels = [];
+    for (let i = 0; i < totalLevels; i++) {
+      levels.push(allWords.slice(i * wordsPerLevel, (i + 1) * wordsPerLevel));
+    }
 
-    // Set default level (Level 1)
-    let currentLevel = 'level1';
+    // Generate level selection buttons dynamically
+    const levelButtonsContainer = document.getElementById("level-buttons");
+    for (let i = 0; i < totalLevels; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = `Рівень ${i + 1}`;
+      btn.onclick = function() {
+        selectLevel(i);
+      };
+      levelButtonsContainer.appendChild(btn);
+    }
+
+    // Global variables for the current level and word management
+    let currentLevel = 0; // index of the level (0-based)
     let currentLevelWords = levels[currentLevel];
     let usedWords = [];
     let currentWord = "";
 
     // Called when a level button is clicked.
-    function selectLevel(level) {
-      currentLevel = 'level' + level;
+    function selectLevel(levelIndex) {
+      currentLevel = levelIndex;
       currentLevelWords = levels[currentLevel];
       usedWords = [];
       displayNewWord();
@@ -227,7 +237,9 @@
 
     // Picks a random word from the current level.
     function getRandomWord() {
-      if (usedWords.length === currentLevelWords.length) usedWords = [];
+      if (usedWords.length === currentLevelWords.length) {
+        usedWords = [];
+      }
       let word;
       do {
         word = currentLevelWords[Math.floor(Math.random() * currentLevelWords.length)];
@@ -242,6 +254,11 @@
       document.getElementById("word").innerText = currentWord.toLowerCase();
       document.getElementById("answer").value = "";
     }
+
+    const correctMessages = ["Правильно! Молодець!", "Все вірно! Так тримати!", "Чудово!", "Точно!", "Відмінно!"];
+    const wrongMessages = ["Помилка!", "Спробуй ще раз!", "Невірно!", "Упс, неправильно!", "Ще разок!"];
+    const correctSounds = ["correctSound1", "correctSound2", "correctSound3"];
+    const wrongSounds = ["wrongSound1", "wrongSound2", "wrongSound3"];
 
     // Check user input and display feedback.
     function checkAndNextWord() {
@@ -273,14 +290,9 @@
       popup.classList.remove("correct", "wrong");
     }
 
-    const correctMessages = ["Правильно! Молодець!", "Все вірно! Так тримати!", "Чудово!", "Точно!", "Відмінно!"];
-    const wrongMessages = ["Помилка!", "Спробуй ще раз!", "Невірно!", "Упс, неправильно!", "Ще разок!"];
-    const correctSounds = ["correctSound1", "correctSound2", "correctSound3"];
-    const wrongSounds = ["wrongSound1", "wrongSound2", "wrongSound3"];
-
-    // When the page loads, set the default level (Level 1).
+    // Set the default level when the page loads.
     window.onload = function() {
-      selectLevel(1);
+      selectLevel(0); // Start with level 1 (index 0)
     };
   </script>
 </body>
