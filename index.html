@@ -4,7 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тренажер наголосів</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .close-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -20,6 +58,52 @@
     </div>
     <audio id="correctSound" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
     <audio id="wrongSound" src="https://www.myinstants.com/media/sounds/wrong.mp3"></audio>
-    <script src="script.js"></script>
+    <script>
+        const words = [
+            "агронОмія", "алфАвІт", "Аркушик", "асиметрІя", "багаторазОвий",
+            "безпринцИпний", "бЕшкет", "блАговіст", "близькИй", "болотИстий",
+            "борОдавка", "босОніж", "боЯзнь", "бурштинОвий", "бюлетЕнь"
+        ];
+        let usedWords = [];
+        let currentWord = "";
+
+        function getRandomWord() {
+            if (usedWords.length === words.length) usedWords = [];
+            let word;
+            do {
+                word = words[Math.floor(Math.random() * words.length)];
+            } while (usedWords.includes(word));
+            usedWords.push(word);
+            return word;
+        }
+
+        function displayNewWord() {
+            currentWord = getRandomWord();
+            document.getElementById("word").innerText = currentWord.toLowerCase();
+            document.getElementById("answer").value = "";
+        }
+
+        function checkAndNextWord() {
+            const userInput = document.getElementById("answer").value;
+            if (userInput === currentWord) {
+                document.getElementById("popup-message").innerText = "Все правильно!";
+                document.getElementById("correctSound").play();
+                setTimeout(() => {
+                    document.getElementById("popup").style.display = "none";
+                    displayNewWord();
+                }, 1000);
+            } else {
+                document.getElementById("popup-message").innerText = `Неправильно! Правильна відповідь: ${currentWord}`;
+                document.getElementById("wrongSound").play();
+            }
+            document.getElementById("popup").style.display = "block";
+        }
+
+        function closePopup() {
+            document.getElementById("popup").style.display = "none";
+        }
+
+        window.onload = displayNewWord;
+    </script>
 </body>
 </html>
